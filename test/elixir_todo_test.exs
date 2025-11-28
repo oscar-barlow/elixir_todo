@@ -71,5 +71,16 @@ defmodule ElixirTodoTest do
       not_done_tasks = TaskList.get_not_done_tasks(task_list)
       assert not_done_tasks == %TaskList{tasks: [shopping, dinner]}
     end
+
+    test "removes a task from the list" do
+      shopping = %Task{description: "do the shopping"}
+      walk_dog = %Task{description: "walk the dog", is_done: true}
+      dinner = %Task{description: "cook dinner"}
+
+      task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
+
+      remaining_tasks = TaskList.remove_task_from_list(task_list, 1)
+      assert remaining_tasks == %TaskList{tasks: [walk_dog, dinner]}
+    end
   end
 end

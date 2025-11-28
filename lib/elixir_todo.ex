@@ -28,5 +28,10 @@ defmodule ElixirTodo do
       not_done_tasks = Enum.filter(task_list.tasks, fn t -> !t.is_done end)
       %TaskList{tasks: not_done_tasks}
     end
+    def remove_task_from_list(%TaskList{} = task_list, index) when is_integer(index) do
+      List.delete_at(task_list.tasks, index - 1)
+        |> then(fn tasks -> %TaskList{tasks: tasks} end)
+    end
   end
+
 end
