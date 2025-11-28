@@ -1,6 +1,6 @@
-defmodule ElixirTodoTest do
-  alias ElixirTodo.TaskList
-  alias ElixirTodo.Task
+defmodule TodoTest do
+  alias Todo.TaskList
+  alias Todo.Task
   use ExUnit.Case
 
   describe "task" do

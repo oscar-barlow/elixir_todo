@@ -1,6 +1,6 @@
-defmodule ElixirTodo do
+defmodule Todo do
   @moduledoc """
-  Documentation for `ElixirTodo`.
+  Documentation for `Todo`.
   """
 
   defmodule Task do
