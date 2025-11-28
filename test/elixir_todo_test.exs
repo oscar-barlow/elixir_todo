@@ -37,24 +37,39 @@ defmodule ElixirTodoTest do
       assert_raise FunctionClauseError, fn -> TaskList.add_task_to_list(task_list, not_a_task) end
     end
 
-    test "updates done statuses of tasks in list", %{task_list: task_list} do
+    test "updates done statuses of tasks in list" do
       shopping = %Task{description: "do the shopping"}
       walk_dog = %Task{description: "walk the dog"}
       dinner = %Task{description: "cook dinner"}
 
-      Enum.each([shopping, walk_dog, dinner], fn task ->
-        TaskList.add_task_to_list(task_list, task)
-      end)
-      
-      TaskList.mark_task_as_done(task_list, 1)
-      
-      done_task = hd task_list
-      
+      task_list =
+        %TaskList{}
+        |> TaskList.add_task_to_list(shopping)
+        |> TaskList.add_task_to_list(walk_dog)
+        |> TaskList.add_task_to_list(dinner)
+
+      completed_first_task = TaskList.mark_task_as_done(task_list, 1)
+
+      done_task = hd completed_first_task.tasks
+
       assert done_task.is_done
     end
 
+    test "prevents you marking non-existent tasks as done", %{task_list: task_list} do
+      assert_raise Enum.OutOfBoundsError, fn ->
+        TaskList.mark_task_as_done(task_list, 0)
+      end
+    end
+
     test "returns you not-done tasks in list" do
-      assert false
+      shopping = %Task{description: "do the shopping"}
+      walk_dog = %Task{description: "walk the dog", is_done: true}
+      dinner = %Task{description: "cook dinner"}
+
+      task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
+
+      not_done_tasks = TaskList.get_not_done_tasks(task_list)
+      assert not_done_tasks == %TaskList{tasks: [shopping, dinner]}
     end
   end
 end
