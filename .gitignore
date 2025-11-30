@@ -24,3 +24,5 @@ elixir_todo-*.tar
 
 # artefacts presumably related to the elixir language server
 .elixir_ls
+
+.claude/
