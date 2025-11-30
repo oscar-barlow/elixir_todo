@@ -19,7 +19,7 @@ defmodule Todo.Adapters.Cli do
   end
   
   defp run(%TaskList{} = task_list, ["done", index]) do
-    done = TaskList.mark_task_as_done(task_list, index)
+    done = TaskList.mark_task_as_done(task_list, index.to_integer())
     IO.puts("Marked task as done")
     done
   end
@@ -38,7 +38,7 @@ defmodule Todo.Adapters.Cli do
   end
   
   defp run(%TaskList{} = task_list, ["remove", index]) do
-    removed = TaskList.remove_task_from_list(task_list, index)
+    removed = TaskList.remove_task_from_list(task_list, index.to_integer())
     IO.puts("Removed task from list")
     removed
   end
