@@ -21,20 +21,10 @@ defmodule Todo.Adapters.CliTest do
         %TaskList{tasks: [%Task{description: "buy some milk"}]}
       end)
 
-      Cli.parse(%TaskList{tasks: []}, "add buy some milk")
-    end
-
-    test "should tell you that you've added a task" do
-      task_list = %TaskList{tasks: []}
-
-      expect(TaskListMock, :add_task_to_list, fn ^task_list,
-                                                 %Task{description: "buy some milk"} ->
-        %TaskList{tasks: [%Task{description: "buy some milk"}]}
-      end)
-
       added = Cli.parse(%TaskList{tasks: []}, "add buy some milk")
       assert added == {:ok, "Added task"}
     end
+
   end
 
   describe "when marking tasks as done" do
@@ -111,21 +101,9 @@ defmodule Todo.Adapters.CliTest do
         %TaskList{tasks: [shopping]}
       end)
 
-      Cli.parse(task_list, "remove 2")
-    end
-
-    test "should tell you that you've removed a task" do
-      shopping = %Task{description: "do the shopping"}
-      walk_dog = %Task{description: "walk the dog", is_done: true}
-
-      task_list = %TaskList{tasks: [shopping, walk_dog]}
-
-      expect(TaskListMock, :remove_task_from_list, fn ^task_list, 2 ->
-        %TaskList{tasks: [shopping]}
-      end)
-
       result = Cli.parse(task_list, "remove 2")
       assert result == {:ok, "Removed task 2"}
     end
+
   end
 end
