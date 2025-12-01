@@ -1,13 +1,29 @@
+defmodule Todo.Core.TaskListBehaviour do
+  alias Todo.Core.TaskList
+  alias Todo.Core.Task
+	
+  @callback add_task_to_list(TaskList.t(), Task.t()) :: TaskList.t()
+	@callback mark_task_as_done(TaskList.t(), integer()) :: TaskList.t()
+	@callback get_not_done_tasks(TaskList.t()) :: TaskList.t()
+	@callback remove_task_from_list(TaskList.t(), integer()) :: TaskList.t()
+end
+
 defmodule Todo.Core.TaskList do
+  @behaviour Todo.Core.TaskListBehaviour
+  
   alias Todo.Core.TaskList
   alias Todo.Core.Task
 
   defstruct tasks: []
+  
+  @type t :: %__MODULE__ {tasks: list(Task.t())}
 
+  @impl true
   def add_task_to_list(%TaskList{} = task_list, %Task{} = task) do
     %TaskList{tasks: [task | task_list.tasks]}
   end
 
+  @impl true
   def mark_task_as_done(%TaskList{} = task_list, index) when is_integer(index) do
     case Enum.fetch(task_list.tasks, index - 1) do
       :error -> raise Enum.OutOfBoundsError
@@ -21,11 +37,13 @@ defmodule Todo.Core.TaskList do
     %TaskList{tasks: updated_tasks}
   end
 
+  @impl true
   def get_not_done_tasks(%TaskList{} = task_list) do
     not_done_tasks = Enum.filter(task_list.tasks, fn t -> !t.is_done end)
     %TaskList{tasks: not_done_tasks}
   end
 
+  @impl true
   def remove_task_from_list(%TaskList{} = task_list, index) when is_integer(index) do
     Enum.drop(task_list.tasks, index)
     |> then(fn tasks -> %TaskList{tasks: tasks} end)
