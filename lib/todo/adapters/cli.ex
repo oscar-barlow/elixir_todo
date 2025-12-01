@@ -15,7 +15,8 @@ defmodule Todo.Adapters.Cli do
   @impl true
   def parse(%TaskList{} = task_list, command) do
     String.split(command)
-    |> then(fn cmd -> run(task_list, cmd) end)
+    |> then(&run(task_list, &1))
+
   end
 
   defp run(%TaskList{} = task_list, ["add" | description_list]) do
