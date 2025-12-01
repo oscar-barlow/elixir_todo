@@ -1,7 +1,7 @@
 defmodule Todo.Core.TaskListBehaviour do
   alias Todo.Core.TaskList
   alias Todo.Core.Task
-	
+
   @callback add_task_to_list(TaskList.t(), Task.t()) :: TaskList.t()
 	@callback mark_task_as_done(TaskList.t(), integer()) :: TaskList.t()
 	@callback get_not_done_tasks(TaskList.t()) :: TaskList.t()
@@ -10,12 +10,12 @@ end
 
 defmodule Todo.Core.TaskList do
   @behaviour Todo.Core.TaskListBehaviour
-  
+
   alias Todo.Core.TaskList
   alias Todo.Core.Task
 
   defstruct tasks: []
-  
+
   @type t :: %__MODULE__ {tasks: list(Task.t())}
 
   @impl true
