@@ -1,7 +1,7 @@
 defmodule Todo.Ports do
   alias Todo.Core.TaskList
   defmodule Cli do
-    @callback parse(TaskList.t(), String.t()) :: {:ok, String.t()}
+    @callback parse(TaskList.t(), String.t()) :: TaskList.t() | :ok
   end
 
   defmodule CliFormatter do
