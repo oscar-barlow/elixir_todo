@@ -7,11 +7,6 @@ defmodule Todo.Adapters.Cli do
 
   @behaviour Todo.Ports.Cli
 
-  # this module should actually format the tasks, so that we're always returning a string
-  # then orchestration code can figure just take input and print output
-  # my storage adapter should be responsible for saving and formatting files to disk, and reading files into tasklists
-  # possibly the formatter needs to live in its own module.
-
   @impl true
   def parse(%TaskList{} = task_list, command) do
     String.split(command)

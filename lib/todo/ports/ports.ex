@@ -9,7 +9,9 @@ defmodule Todo.Ports do
   end
 
   defmodule Storage do
-    @callback read() :: {:ok, TaskList.t()}
-    @callback write() :: :ok
+    alias Todo.Adapters.Storage
+
+    @callback read(Storage.t()) :: {:ok, TaskList.t()}
+    @callback write(Storage.t(), String.t()) :: :ok
   end
 end
