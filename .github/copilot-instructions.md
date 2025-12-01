@@ -67,14 +67,13 @@ The CLI adapter uses **compile-time DI** for testability:
    Enum.fetch(task_list.tasks, index - 1)  # Note the -1
    ```
 
-2. **Immutable Updates**: TaskList operations return new structs, never mutate
-   ```elixir
-   %TaskList{tasks: updated_tasks}  # Always create new struct
-   ```
+2. **No Premature Concurrency**: Avoid GenServers, Tasks, Agents, or other concurrency primitives unless there's a clear performance need. Keep it simple with pure functions.
 
-3. **Error Handling**: Raises exceptions for invalid operations (e.g., `Enum.OutOfBoundsError` for invalid index)
+3. **Readability Over Cleverness**: Prioritize clear, straightforward code. If a pipeline or abstraction makes the logic harder to follow, break it down.
 
-4. **Future Extensibility**: Storage adapter is planned but not yet implemented - keep persistence layer separate when adding
+4. **Error Handling**: Raises exceptions for invalid operations (e.g., `Enum.OutOfBoundsError` for invalid index)
+
+5. **Future Extensibility**: Storage adapter is planned but not yet implemented - keep persistence layer separate when adding
 
 ## Common Patterns
 
