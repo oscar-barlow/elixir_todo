@@ -16,6 +16,7 @@ defmodule TaskListTest do
       assert Enum.count(added.tasks) == 1
     end
 
+    # todo: should be deprecated by spec and dialyzer
     test "stops you adding not a task to a list", %{task_list: task_list} do
       not_a_task = %{some: "random map"}
       assert_raise FunctionClauseError, fn -> TaskList.add_task_to_list(task_list, not_a_task) end
