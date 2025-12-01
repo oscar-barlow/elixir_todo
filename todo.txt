@@ -1,5 +1,0 @@
-todo add "some task"
-todo done 1
-todo remove 3
-todo list
-todo list --not-done
