@@ -2,8 +2,8 @@ defmodule Todo.Adapters.Cli do
   alias Todo.Core.Task
   alias Todo.Core.TaskList
 
-  @task_list_module Application.compile_env(:elixir_todo, :task_list_module, Todo.Core.TaskList)
-  @cli_formatter_module Application.compile_env(:elixir_todo, :cli_formatter_module, Todo.Adapters.CliFormatter)
+  @task_list_module Application.compile_env(:todo, :task_list_module, Todo.Core.TaskList)
+  @cli_formatter_module Application.compile_env(:todo, :cli_formatter_module, Todo.Adapters.CliFormatter)
 
   @behaviour Todo.Ports.Cli
 

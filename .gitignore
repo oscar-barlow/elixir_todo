@@ -27,5 +27,5 @@ elixir_todo-*.tar
 
 .claude/
 
-# escript app
-elixir_todo
+# escript binary in root directory
+/todo

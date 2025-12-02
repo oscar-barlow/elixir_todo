@@ -24,7 +24,7 @@ This codebase follows a strict hexagonal/ports-and-adapters pattern:
 The CLI adapter uses **compile-time DI** for testability:
 
 ```elixir
-@task_list_module Application.compile_env(:elixir_todo, :task_list_module, Todo.Core.TaskList)
+@task_list_module Application.compile_env(:todo, :task_list_module, Todo.Core.TaskList)
 ```
 
 - **Production**: Defaults to `Todo.Core.TaskList`
