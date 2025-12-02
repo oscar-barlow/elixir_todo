@@ -22,4 +22,10 @@ defmodule Todo.Adapters.CliFormatterTest do
 
     assert result == expected
   end
+
+  test "should format empty task list" do
+    emtpy_task_list = %TaskList{}
+    result = CliFormatter.format(emtpy_task_list)
+    assert result == ""
+  end
 end

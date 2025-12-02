@@ -15,16 +15,16 @@ defmodule Todo.Adapters.CliTest do
   describe "when adding tasks" do
     test "should delegate adding tasks" do
       task_list = %TaskList{tasks: []}
+      added_task_list = %TaskList{tasks: [%Task{description: "buy some milk"}]}
 
       expect(TaskListMock, :add_task_to_list, fn ^task_list,
                                                  %Task{description: "buy some milk"} ->
-        %TaskList{tasks: [%Task{description: "buy some milk"}]}
+        added_task_list
       end)
 
       added = Cli.parse(%TaskList{tasks: []}, {[], "add buy some milk"})
-      assert added == {:ok, "Added task"}
+      assert added == {:ok, added_task_list, "Added task"}
     end
-
   end
 
   describe "when marking tasks as done" do
@@ -34,14 +34,13 @@ defmodule Todo.Adapters.CliTest do
       dinner = %Task{description: "cook dinner"}
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
-      _any_task_list = %TaskList{tasks: []}
+      any_task_list = %TaskList{tasks: []}
 
-      expect(TaskListMock, :mark_task_as_done, fn ^task_list, 3 -> _any_task_list end)
+      expect(TaskListMock, :mark_task_as_done, fn ^task_list, 3 -> any_task_list end)
 
       result = Cli.parse(task_list, {[], "done 3"})
-      assert result == {:ok, "Marked task 3 as done"}
+      assert result == {:ok, any_task_list, "Marked task 3 as done"}
     end
-
   end
 
   describe "when listing tasks" do
@@ -83,14 +82,14 @@ defmodule Todo.Adapters.CliTest do
       walk_dog = %Task{description: "walk the dog", is_done: true}
 
       task_list = %TaskList{tasks: [shopping, walk_dog]}
+      removed_task_list = %TaskList{tasks: [shopping]}
 
       expect(TaskListMock, :remove_task_from_list, fn ^task_list, 2 ->
-        %TaskList{tasks: [shopping]}
+        removed_task_list
       end)
 
       result = Cli.parse(task_list, {[], "remove 2"})
-      assert result == {:ok, "Removed task 2"}
+      assert result == {:ok, removed_task_list,"Removed task 2"}
     end
-
   end
 end

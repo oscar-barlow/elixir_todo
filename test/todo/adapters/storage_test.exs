@@ -23,10 +23,17 @@ defmodule StorageTest do
       contents = File.read!(Path.join(storage.todo_folder, storage.todo_file))
       assert contents == "something"
     end
+
+    @tag :tmp_dir
+    test "should write an empty file if the task list is empty", %{tmp_dir: tmp_dir} do
+      storage = %Storage{todo_folder: tmp_dir}
+      Storage.write(storage, "")
+      contents = File.read!(Path.join(storage.todo_folder, storage.todo_file))
+      assert contents == ""
+    end
   end
 
   describe "when reading a file" do
-
     @tag :tmp_dir
     test "should create it if it doesn't exist already", %{tmp_dir: tmp_dir} do
       storage = %Storage{todo_folder: tmp_dir}
@@ -53,12 +60,14 @@ defmodule StorageTest do
 
       {:ok, task_list} = Storage.read(storage)
 
-      assert task_list == %TaskList{tasks: [
-        %Task{description: "do the shopping"},
-        %Task{description: "walk the dog", is_done: true},
-        %Task{description: "cook dinner"},
-        %Task{description: "shave"},
-      ]}
+      assert task_list == %TaskList{
+               tasks: [
+                 %Task{description: "do the shopping"},
+                 %Task{description: "walk the dog", is_done: true},
+                 %Task{description: "cook dinner"},
+                 %Task{description: "shave"}
+               ]
+             }
     end
   end
 end

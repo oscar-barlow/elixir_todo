@@ -5,6 +5,11 @@ defmodule Todo.Adapters.CliFormatter do
   alias Todo.Core.Task
 
   @impl true
+  def format(%TaskList{tasks: []}) do
+    ""
+  end
+
+  @impl true
   def format(%TaskList{tasks: tasks}) do
     new_line = "\n"
 

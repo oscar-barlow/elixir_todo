@@ -16,13 +16,13 @@ defmodule Todo.Adapters.Cli do
   defp run(%TaskList{} = task_list, [], ["add" | description_list]) do
     task = Enum.join(description_list, " ")
       |> then(fn description -> %Task{description: description} end)
-    @task_list_module.add_task_to_list(task_list, task)
-    {:ok, "Added task"}
+    added = @task_list_module.add_task_to_list(task_list, task)
+    {:ok, added, "Added task"}
   end
 
   defp run(%TaskList{} = task_list, [], ["done", index]) do
-    @task_list_module.mark_task_as_done(task_list, String.to_integer(index))
-    {:ok, "Marked task #{index} as done"}
+    done = @task_list_module.mark_task_as_done(task_list, String.to_integer(index))
+    {:ok, done, "Marked task #{index} as done"}
   end
 
   defp run(%TaskList{} = task_list, [], ["list"]) do
@@ -37,8 +37,8 @@ defmodule Todo.Adapters.Cli do
   end
 
   defp run(%TaskList{} = task_list, [], ["remove", index]) do
-    @task_list_module.remove_task_from_list(task_list, String.to_integer(index))
-    {:ok, "Removed task #{index}"}
+    removed = @task_list_module.remove_task_from_list(task_list, String.to_integer(index))
+    {:ok, removed, "Removed task #{index}"}
   end
 
 end
