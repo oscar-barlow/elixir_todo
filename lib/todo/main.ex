@@ -9,11 +9,11 @@ defmodule Todo.Main do
   end
 
   defp parse(args) do
-    {_, word, _} = args |> OptionParser.parse(switches: [not_done: :boolean])
+    {opts, word, _} = args |> OptionParser.parse(switches: [not_done: :boolean])
     storage = %Storage{}
     {:ok, task_list} = Storage.read(storage)
     command = Enum.join(word, " ")
-    {:ok, updated} = Cli.parse(task_list, command)
+    {:ok, updated} = Cli.parse(task_list, {opts, command})
     Storage.write(storage, updated)
     updated
   end
