@@ -35,7 +35,23 @@ mix compile
 
 ## Usage
 
-A terminal CLI will be provided via `escript` in a future update. For now, the CLI adapter is used programmatically by tests and examples within the codebase.
+The app is available as an executable escript binary. Build it with:
+
+```bash
+mix escript.build
+```
+
+This creates a `todo` executable. Run it:
+
+```bash
+# Add a task
+./todo add Buy groceries
+
+# Show help
+./todo help
+```
+
+Tasks are stored in `~/todo.txt`.
 
 ## Testing
 
@@ -46,8 +62,5 @@ Uses ExUnit and Mox. Tests follow TDD and mock adapter dependencies via behaviou
 Adapter modules are set via application config. Production uses real implementations; tests override to mocks. This single configuration point ensures decoupling and easy swapping of dependencies.
 
 ## Roadmap
-
-- Storage adapter (persistence) via a `Storage` port
-- Command-line executable wrapper (Mix task or escript)
 - Structural typing with Dialyzer and spec
 

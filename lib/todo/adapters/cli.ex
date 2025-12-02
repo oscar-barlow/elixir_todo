@@ -40,6 +40,32 @@ defmodule Todo.Adapters.Cli do
     {:ok, removed, "Removed task #{index}"}
   end
 
+  defp run(%TaskList{} = task_list, [], ["help"]) do
+    help = """
+    todo - a mini cli-based todo app written in Elixir.
+
+    todo will persist a list of tasks to 'todo.txt' in your home directory.
+
+    USAGE:
+      todo <command> [arguments]
+
+    COMMANDS:
+      add <description>       Add a new task
+      done <number>           Mark a task as complete
+      list                    Show all tasks
+      list --not-done         Show only incomplete tasks
+      remove <number>         Remove a task
+      help                    Show this help text
+
+    EXAMPLES:
+      todo add Buy groceries
+      todo done 1
+      todo list
+      todo remove 3
+    """
+    {:ok, task_list, help}
+  end
+
   defp format_result({:ok, %TaskList{} = task_list, description}) do
     formatted = @cli_formatter_module.format(task_list)
     {:ok, formatted, description}
