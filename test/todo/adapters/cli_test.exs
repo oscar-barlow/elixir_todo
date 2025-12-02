@@ -13,7 +13,7 @@ defmodule Todo.Adapters.CliTest do
   end
 
   describe "when adding tasks" do
-    test "should delegate adding tasks" do
+    test "should delegate adding tasks and format the result" do
       task_list = %TaskList{tasks: []}
       added_task_list = %TaskList{tasks: [%Task{description: "buy some milk"}]}
 
@@ -22,24 +22,27 @@ defmodule Todo.Adapters.CliTest do
         added_task_list
       end)
 
+      expect(CliFormatterMock, :format, fn ^added_task_list -> "example formatted tasks" end)
+
       added = Cli.parse(%TaskList{tasks: []}, {[], "add buy some milk"})
-      assert added == {:ok, added_task_list, "Added task"}
+      assert added == {:ok, "example formatted tasks", "Added task"}
     end
   end
 
   describe "when marking tasks as done" do
-    test "should delegate marking a task as done" do
+    test "should delegate marking a task as done and format the result" do
       shopping = %Task{description: "do the shopping"}
       walk_dog = %Task{description: "walk the dog", is_done: true}
       dinner = %Task{description: "cook dinner"}
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
-      any_task_list = %TaskList{tasks: []}
+      done_task_list = %TaskList{tasks: [shopping, walk_dog, %Task{description: "cook dinner", is_done: true}]}
 
-      expect(TaskListMock, :mark_task_as_done, fn ^task_list, 3 -> any_task_list end)
+      expect(TaskListMock, :mark_task_as_done, fn ^task_list, 3 -> done_task_list end)
+      expect(CliFormatterMock, :format, fn ^done_task_list -> "example formatted tasks" end)
 
       result = Cli.parse(task_list, {[], "done 3"})
-      assert result == {:ok, any_task_list, "Marked task 3 as done"}
+      assert result == {:ok, "example formatted tasks", "Marked task 3 as done"}
     end
   end
 
@@ -51,10 +54,10 @@ defmodule Todo.Adapters.CliTest do
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 
-      expect(CliFormatterMock, :format, fn ^task_list -> "formatted output" end)
+      expect(CliFormatterMock, :format, fn ^task_list -> "example formatted tasks" end)
 
       result = Cli.parse(task_list, {[], "list"})
-      assert result == {:ok, "formatted output"}
+      assert result == {:ok, "example formatted tasks"}
     end
 
     test "should delegate filtering and formatting for listing not-done tasks" do
@@ -69,15 +72,15 @@ defmodule Todo.Adapters.CliTest do
         not_done_task_list
       end)
 
-      expect(CliFormatterMock, :format, fn ^not_done_task_list -> "formatted output" end)
+      expect(CliFormatterMock, :format, fn ^not_done_task_list -> "example formatted tasks" end)
 
       result = Cli.parse(task_list, {[not_done: true], "list"})
-      assert result == {:ok, "formatted output"}
+      assert result == {:ok, "example formatted tasks"}
     end
   end
 
   describe "when removing tasks" do
-    test "should delegate removing tasks" do
+    test "should delegate removing tasks and format the result" do
       shopping = %Task{description: "do the shopping"}
       walk_dog = %Task{description: "walk the dog", is_done: true}
 
@@ -88,8 +91,10 @@ defmodule Todo.Adapters.CliTest do
         removed_task_list
       end)
 
+      expect(CliFormatterMock, :format, fn ^removed_task_list -> "example formatted tasks" end)
+
       result = Cli.parse(task_list, {[], "remove 2"})
-      assert result == {:ok, removed_task_list,"Removed task 2"}
+      assert result == {:ok, "example formatted tasks", "Removed task 2"}
     end
   end
 end
