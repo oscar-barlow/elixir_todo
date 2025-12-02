@@ -20,7 +20,8 @@ defmodule Todo.Core.TaskList do
 
   @impl true
   def add_task_to_list(%TaskList{} = task_list, %Task{} = task) do
-    %TaskList{tasks: [task | task_list.tasks]}
+    task_list.tasks ++ [task]
+    |> then(&(%TaskList{tasks: &1}))
   end
 
   @impl true
@@ -45,7 +46,7 @@ defmodule Todo.Core.TaskList do
 
   @impl true
   def remove_task_from_list(%TaskList{} = task_list, index) when is_integer(index) do
-    Enum.drop(task_list.tasks, index)
+    List.delete_at(task_list.tasks, index - 1)
     |> then(fn tasks -> %TaskList{tasks: tasks} end)
   end
 end

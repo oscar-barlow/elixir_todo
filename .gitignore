@@ -26,3 +26,6 @@ elixir_todo-*.tar
 .elixir_ls
 
 .claude/
+
+# escript binary in root directory
+/todo

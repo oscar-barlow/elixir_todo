@@ -16,6 +16,14 @@ defmodule TaskListTest do
       assert Enum.count(added.tasks) == 1
     end
 
+    test "preserves task order when adding tasks to a list", %{task_list: task_list, task: task} do
+      another_task = %Task{description: "Another test task"}
+      result = TaskList.add_task_to_list(task_list, task)
+       |> then(&(TaskList.add_task_to_list(&1, another_task)))
+
+       assert result == %TaskList{tasks: [task, another_task]}
+    end
+
     # todo: should be deprecated by spec and dialyzer
     test "stops you adding not a task to a list", %{task_list: task_list} do
       not_a_task = %{some: "random map"}
@@ -66,6 +74,17 @@ defmodule TaskListTest do
 
       remaining_tasks = TaskList.remove_task_from_list(task_list, 1)
       assert remaining_tasks == %TaskList{tasks: [walk_dog, dinner]}
+    end
+
+    test "removes the correct task from middle of the list" do
+      shopping = %Task{description: "do the shopping"}
+      walk_dog = %Task{description: "walk the dog"}
+      dinner = %Task{description: "cook dinner"}
+
+      task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
+
+      remaining_tasks = TaskList.remove_task_from_list(task_list, 2)
+      assert remaining_tasks == %TaskList{tasks: [shopping, dinner]}
     end
   end
 
