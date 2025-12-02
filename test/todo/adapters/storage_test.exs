@@ -26,6 +26,18 @@ defmodule StorageTest do
   end
 
   describe "when reading a file" do
+
+    @tag :tmp_dir
+    test "should create it if it doesn't exist already", %{tmp_dir: tmp_dir} do
+      storage = %Storage{todo_folder: tmp_dir}
+
+      Storage.read(storage)
+
+      todos_path = Path.join(tmp_dir, storage.todo_file)
+
+      assert File.exists?(todos_path)
+    end
+
     @tag :tmp_dir
     test "should return it as a TaskList", %{tmp_dir: tmp_dir} do
       storage = %Storage{todo_folder: tmp_dir}
@@ -46,7 +58,6 @@ defmodule StorageTest do
         %Task{description: "walk the dog", is_done: true},
         %Task{description: "cook dinner"},
         %Task{description: "shave"},
-
       ]}
     end
   end

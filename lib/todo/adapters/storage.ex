@@ -11,6 +11,12 @@ defmodule Todo.Adapters.Storage do
   def read(%__MODULE__{} = storage) do
     read_path = Path.join(storage.todo_folder, storage.todo_file)
 
+    case File.exists?(read_path) do
+      true -> :ok
+      false -> File.touch(read_path, System.os_time(:second))
+    end
+
+
     task_list =
       File.stream!(read_path, encoding: :utf8)
       |> Stream.map(&convert_line_to_task/1)
