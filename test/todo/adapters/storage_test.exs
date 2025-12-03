@@ -70,10 +70,10 @@ defmodule StorageTest do
 
       assert task_list == %TaskList{
                tasks: [
-                 %Task{description: "do the shopping"},
-                 %Task{description: "walk the dog", is_done: true},
-                 %Task{description: "cook dinner"},
-                 %Task{description: "shave"}
+                  Task.new("do the shopping"),
+                  Task.new("walk the dog", true),
+                  Task.new("cook dinner"),
+                  Task.new("shave")
                ]
              }
     end

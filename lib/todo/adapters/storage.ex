@@ -37,10 +37,12 @@ defmodule Todo.Adapters.Storage do
   defp parse_task(parts) do
     case List.pop_at(parts, -1) do
       {"✓", description_parts} ->
-        %Task{description: Enum.join(description_parts, " "), is_done: true}
+        description = Enum.join(description_parts, " ")
+        Task.new(description) |> then(fn task -> %{task | is_done: true} end)
 
       {last_word, description_parts} ->
-        %Task{description: Enum.join(description_parts ++ [last_word], " ")}
+        description = Enum.join(description_parts ++ [last_word], " ")
+        Task.new(description)
     end
   end
 

@@ -5,7 +5,7 @@ defmodule TaskListTest do
 
   describe "todolist" do
     setup do
-      task = %Task{description: "Test task"}
+      task = Task.new("Test task")
       task_list = %TaskList{tasks: []}
       {:ok, task: task, task_list: task_list}
     end
@@ -17,7 +17,7 @@ defmodule TaskListTest do
     end
 
     test "preserves task order when adding tasks to a list", %{task_list: task_list, task: task} do
-      another_task = %Task{description: "Another test task"}
+      another_task = Task.new("Another test task")
 
       result =
         TaskList.add_task_to_list(task_list, task)
@@ -33,9 +33,9 @@ defmodule TaskListTest do
     end
 
     test "updates done statuses of tasks in list" do
-      shopping = %Task{description: "do the shopping"}
-      walk_dog = %Task{description: "walk the dog"}
-      dinner = %Task{description: "cook dinner"}
+      shopping = Task.new("do the shopping")
+      walk_dog = Task.new("walk the dog")
+      dinner = Task.new("cook dinner")
 
       task_list =
         %TaskList{}
@@ -57,9 +57,9 @@ defmodule TaskListTest do
     end
 
     test "returns you not-done tasks in list" do
-      shopping = %Task{description: "do the shopping"}
-      walk_dog = %Task{description: "walk the dog", is_done: true}
-      dinner = %Task{description: "cook dinner"}
+      shopping = Task.new("do the shopping")
+      walk_dog = Task.new("walk the dog", true)
+      dinner = Task.new("cook dinner")
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 
@@ -68,9 +68,9 @@ defmodule TaskListTest do
     end
 
     test "removes a task from the list" do
-      shopping = %Task{description: "do the shopping"}
-      walk_dog = %Task{description: "walk the dog", is_done: true}
-      dinner = %Task{description: "cook dinner"}
+      shopping = Task.new("do the shopping")
+      walk_dog = Task.new("walk the dog", true)
+      dinner = Task.new("cook dinner")
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 
@@ -79,9 +79,9 @@ defmodule TaskListTest do
     end
 
     test "removes the correct task from middle of the list" do
-      shopping = %Task{description: "do the shopping"}
-      walk_dog = %Task{description: "walk the dog"}
-      dinner = %Task{description: "cook dinner"}
+      shopping = Task.new("do the shopping")
+      walk_dog = Task.new("walk the dog")
+      dinner = Task.new("cook dinner")
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 

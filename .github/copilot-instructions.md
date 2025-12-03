@@ -71,9 +71,11 @@ The CLI adapter uses **compile-time DI** for testability:
 
 3. **Readability Over Cleverness**: Prioritize clear, straightforward code. If a pipeline or abstraction makes the logic harder to follow, break it down.
 
-4. **Error Handling**: Raises exceptions for invalid operations (e.g., `Enum.OutOfBoundsError` for invalid index)
+4. **Self-Documenting Code**: Code should be clear enough to be self-documenting. Do NOT add `@doc` or `@moduledoc` to most modules - the code itself should explain its purpose through good naming and structure. This is counter to standard Elixir conventions but preferred for this codebase. Only add documentation for truly complex algorithms or non-obvious behavior.
 
-5. **Future Extensibility**: Storage adapter is planned but not yet implemented - keep persistence layer separate when adding
+5. **Error Handling**: Raises exceptions for invalid operations (e.g., `Enum.OutOfBoundsError` for invalid index)
+
+6. **Future Extensibility**: Storage adapter is planned but not yet implemented - keep persistence layer separate when adding
 
 ## Common Patterns
 

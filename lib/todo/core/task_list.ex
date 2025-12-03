@@ -33,7 +33,7 @@ defmodule Todo.Core.TaskList do
   end
 
   defp mark_task_complete_and_create_new_task_list(%TaskList{} = task_list, %Task{} = task, index) do
-    completed = %Task{description: task.description, is_done: true}
+    completed = %{task | is_done: true}
     updated_tasks = List.replace_at(task_list.tasks, index - 1, completed)
     %TaskList{tasks: updated_tasks}
   end
