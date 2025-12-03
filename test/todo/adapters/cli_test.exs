@@ -63,7 +63,7 @@ defmodule Todo.Adapters.CliTest do
   describe "when listing tasks" do
     test "should delegate formatting to the formatter for listing all tasks" do
       shopping = Task.new("do the shopping")
-      walk_dog = Task.new("walk the dog", is_done: true)
+      walk_dog = Task.new("walk the dog", true)
       dinner = Task.new("cook dinner")
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
