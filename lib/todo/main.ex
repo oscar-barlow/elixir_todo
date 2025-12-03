@@ -21,6 +21,9 @@ defmodule Todo.Main do
 
       {:ok, listed} ->
         listed
+
+      {:error, message} ->
+        message
     end
   end
 end

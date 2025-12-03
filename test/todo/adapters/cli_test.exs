@@ -32,7 +32,7 @@ defmodule Todo.Adapters.CliTest do
   describe "when marking tasks as done" do
     test "should delegate marking a task as done and format the result" do
       shopping = Task.new("do the shopping")
-      walk_dog = Task.new("walk the dog", is_done: true)
+      walk_dog = Task.new("walk the dog", true)
       dinner = Task.new("cook dinner")
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
@@ -41,11 +41,22 @@ defmodule Todo.Adapters.CliTest do
         tasks: [shopping, walk_dog, Task.new("cook dinner", true)]
       }
 
-      expect(TaskListMock, :mark_task_as_done, fn ^task_list, 3 -> done_task_list end)
+      expect(TaskListMock, :mark_task_as_done, fn ^task_list, task_id ->
+        assert task_id == dinner.id
+        done_task_list
+      end)
       expect(CliFormatterMock, :format, fn ^done_task_list -> "example formatted tasks" end)
 
       result = Cli.parse(task_list, {[], "done 3"})
       assert result == {:ok, "example formatted tasks", "Marked task 3 as done"}
+    end
+
+    test "should return error when task index not found" do
+      shopping = Task.new("do the shopping")
+      task_list = %TaskList{tasks: [shopping]}
+
+      result = Cli.parse(task_list, {[], "done 5"})
+      assert result == {:error, "Task 5 not found"}
     end
   end
 
@@ -65,7 +76,7 @@ defmodule Todo.Adapters.CliTest do
 
     test "should delegate filtering and formatting for listing not-done tasks" do
       shopping = Task.new("do the shopping")
-      walk_dog = Task.new("walk the dog", is_done: true)
+      walk_dog = Task.new("walk the dog", true)
       dinner = Task.new("cook dinner")
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
@@ -85,12 +96,13 @@ defmodule Todo.Adapters.CliTest do
   describe "when removing tasks" do
     test "should delegate removing tasks and format the result" do
       shopping = Task.new("do the shopping")
-      walk_dog = Task.new("walk the dog", is_done: true)
+      walk_dog = Task.new("walk the dog", true)
 
       task_list = %TaskList{tasks: [shopping, walk_dog]}
       removed_task_list = %TaskList{tasks: [shopping]}
 
-      expect(TaskListMock, :remove_task_from_list, fn ^task_list, 2 ->
+      expect(TaskListMock, :remove_task_from_list, fn ^task_list, task_id ->
+        assert task_id == walk_dog.id
         removed_task_list
       end)
 
@@ -98,6 +110,14 @@ defmodule Todo.Adapters.CliTest do
 
       result = Cli.parse(task_list, {[], "remove 2"})
       assert result == {:ok, "example formatted tasks", "Removed task 2"}
+    end
+
+    test "should return error when task index not found" do
+      shopping = Task.new("do the shopping")
+      task_list = %TaskList{tasks: [shopping]}
+
+      result = Cli.parse(task_list, {[], "remove 10"})
+      assert result == {:error, "Task 10 not found"}
     end
   end
 end
