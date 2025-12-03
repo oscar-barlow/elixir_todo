@@ -21,7 +21,7 @@ defmodule Todo.Core.TaskList do
   @impl true
   def add_task_to_list(%TaskList{} = task_list, %Task{} = task) do
     task_list.tasks ++ [task]
-    |> then(&(%TaskList{tasks: &1}))
+    |> then(fn tasks -> %TaskList{tasks: tasks} end)
   end
 
   @impl true

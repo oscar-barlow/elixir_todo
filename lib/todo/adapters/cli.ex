@@ -15,8 +15,8 @@ defmodule Todo.Adapters.Cli do
   end
 
   defp run(%TaskList{} = task_list, [], ["add" | description_list]) do
-    task = Enum.join(description_list, " ")
-      |> then(fn description -> %Task{description: description} end)
+    description = Enum.join(description_list, " ")
+    task = %Task{description: description}
     added = @task_list_module.add_task_to_list(task_list, task)
     {:ok, added, "Added task"}
   end
