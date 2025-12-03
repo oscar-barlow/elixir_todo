@@ -1,9 +1,15 @@
 defmodule StorageTest do
   use ExUnit.Case
+  import Mox
 
   alias Todo.Adapters.Storage
   alias Todo.Core.Task
   alias Todo.Core.TaskList
+
+  setup do
+    :verify_on_exit!
+    :ok
+  end
 
   describe "storage struct" do
     test "requires todo_folder and todo_file" do
@@ -13,11 +19,15 @@ defmodule StorageTest do
     end
   end
 
-  describe "when writing a file" do
+  describe "when saving a file" do
     @tag :tmp_dir
     test "should create a todo file", %{tmp_dir: tmp_dir} do
       storage = %Storage{todo_folder: tmp_dir, todo_file: "todo.txt"}
-      Storage.write(storage, "anything")
+      task_list = %TaskList{tasks: [Task.new("test task")]}
+
+      expect(CliFormatterMock, :format, fn ^task_list -> "formatted output" end)
+
+      Storage.save(storage, task_list)
 
       assert File.exists?(Path.join(tmp_dir, "todo.txt"))
     end
@@ -25,28 +35,38 @@ defmodule StorageTest do
     @tag :tmp_dir
     test "should overwrite the file", %{tmp_dir: tmp_dir} do
       storage = %Storage{todo_folder: tmp_dir, todo_file: "todo.txt"}
-      Storage.write(storage, "anything")
-      Storage.write(storage, "something")
+      task_list1 = %TaskList{tasks: [Task.new("first task")]}
+      task_list2 = %TaskList{tasks: [Task.new("second task")]}
+
+      expect(CliFormatterMock, :format, fn ^task_list1 -> "some formatted output" end)
+      expect(CliFormatterMock, :format, fn ^task_list2 -> "some more formatted output" end)
+
+      Storage.save(storage, task_list1)
+      Storage.save(storage, task_list2)
 
       contents = File.read!(Path.join(storage.todo_folder, storage.todo_file))
-      assert contents == "something"
+      assert contents == "some more formatted output"
     end
 
     @tag :tmp_dir
     test "should write an empty file if the task list is empty", %{tmp_dir: tmp_dir} do
       storage = %Storage{todo_folder: tmp_dir, todo_file: "todo.txt"}
-      Storage.write(storage, "")
+      empty_list = %TaskList{tasks: []}
+
+      expect(CliFormatterMock, :format, fn ^empty_list -> "" end)
+
+      Storage.save(storage, empty_list)
       contents = File.read!(Path.join(storage.todo_folder, storage.todo_file))
       assert contents == ""
     end
   end
 
-  describe "when reading a file" do
+  describe "when getting a file" do
     @tag :tmp_dir
     test "should create it if it doesn't exist already", %{tmp_dir: tmp_dir} do
       storage = %Storage{todo_folder: tmp_dir, todo_file: "todo.txt"}
 
-      Storage.read(storage)
+      Storage.get(storage)
 
       todos_path = Path.join(tmp_dir, storage.todo_file)
 
@@ -56,26 +76,29 @@ defmodule StorageTest do
     @tag :tmp_dir
     test "should return it as a TaskList", %{tmp_dir: tmp_dir} do
       storage = %Storage{todo_folder: tmp_dir, todo_file: "todo.txt"}
+      task_list = %TaskList{
+        tasks: [
+          Task.new("do the shopping"),
+          Task.new("walk the dog", true),
+          Task.new("cook dinner"),
+          Task.new("shave")
+        ]
+      }
 
-      todos = """
+      formatted_output = """
       1. do the shopping
       2. walk the dog ✓
       3. cook dinner
       4. shave
       """
 
-      Storage.write(storage, todos)
+      expect(CliFormatterMock, :format, fn ^task_list -> formatted_output end)
 
-      {:ok, task_list} = Storage.read(storage)
+      Storage.save(storage, task_list)
 
-      assert task_list == %TaskList{
-               tasks: [
-                  Task.new("do the shopping"),
-                  Task.new("walk the dog", true),
-                  Task.new("cook dinner"),
-                  Task.new("shave")
-               ]
-             }
+      {:ok, result} = Storage.get(storage)
+
+      assert result == task_list
     end
   end
 end

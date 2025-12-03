@@ -11,9 +11,9 @@ defmodule Todo.Ports do
   end
 
   defmodule Storage do
-    alias Todo.Adapters.Storage
+    @type config :: term()
 
-    @callback read(Storage.t()) :: {:ok, TaskList.t()}
-    @callback write(Storage.t(), String.t()) :: :ok
+    @callback get(config) :: {:ok, TaskList.t()} | {:error, :file_error}
+    @callback save(config, TaskList.t()) :: :ok | {:error, :write_failed}
   end
 end

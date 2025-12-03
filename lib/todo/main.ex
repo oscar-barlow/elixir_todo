@@ -11,12 +11,12 @@ defmodule Todo.Main do
   defp parse(args) do
     {opts, word, _} = args |> OptionParser.parse(switches: [not_done: :boolean])
     storage = %Storage{todo_folder: Path.expand("~"), todo_file: "todo.txt"}
-    {:ok, task_list} = Storage.read(storage)
+    {:ok, task_list} = Storage.get(storage)
     command = Enum.join(word, " ")
 
     case Cli.parse(task_list, {opts, command}) do
       {:ok, updated, desc} ->
-        Storage.write(storage, updated)
+        Storage.save(storage, updated)
         desc
 
       {:ok, listed} ->
