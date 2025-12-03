@@ -3,13 +3,15 @@ defmodule Todo.Adapters.Storage do
   alias Todo.Core.Task
   @behaviour Todo.Ports.Storage
 
+  @formatter Application.compile_env(:todo, :formatter_module, Todo.Adapters.CliFormatter)
+
   @enforce_keys [:todo_folder, :todo_file]
   @type t :: %__MODULE__{todo_folder: Path.t(), todo_file: String.t()}
 
   defstruct todo_folder: nil, todo_file: nil
 
   @impl true
-  def read(%__MODULE__{} = storage) do
+  def get(%__MODULE__{} = storage) do
     read_path = Path.join(storage.todo_folder, storage.todo_file)
 
     case File.exists?(read_path) do
@@ -28,8 +30,8 @@ defmodule Todo.Adapters.Storage do
 
   defp convert_line_to_task(line) do
     line
-    |> String.trim()
-    |> String.split()
+    |> String.trim
+    |> String.split
     |> tl
     |> parse_task
   end
@@ -47,8 +49,9 @@ defmodule Todo.Adapters.Storage do
   end
 
   @impl true
-  def write(%__MODULE__{} = storage, contents) do
+  def save(%__MODULE__{} = storage, %TaskList{} = task_list) do
     write_path = Path.join(storage.todo_folder, storage.todo_file)
+    contents = @formatter.format(task_list)
     File.write!(write_path, contents)
     :ok
   end
