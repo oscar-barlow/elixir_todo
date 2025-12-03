@@ -36,7 +36,10 @@ defmodule Todo.Adapters.CliTest do
       dinner = %Task{description: "cook dinner"}
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
-      done_task_list = %TaskList{tasks: [shopping, walk_dog, %Task{description: "cook dinner", is_done: true}]}
+
+      done_task_list = %TaskList{
+        tasks: [shopping, walk_dog, %Task{description: "cook dinner", is_done: true}]
+      }
 
       expect(TaskListMock, :mark_task_as_done, fn ^task_list, 3 -> done_task_list end)
       expect(CliFormatterMock, :format, fn ^done_task_list -> "example formatted tasks" end)

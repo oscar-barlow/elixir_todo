@@ -5,7 +5,7 @@ defmodule Todo.Main do
   def main(args \\ []) do
     args
     |> parse
-    |> IO.puts
+    |> IO.puts()
   end
 
   defp parse(args) do
@@ -14,13 +14,13 @@ defmodule Todo.Main do
     {:ok, task_list} = Storage.read(storage)
     command = Enum.join(word, " ")
 
-     case Cli.parse(task_list, {opts, command}) do
-       {:ok, updated, desc} ->
-          Storage.write(storage, updated)
-          desc
-        {:ok, listed} ->
-          listed
-     end
-  end
+    case Cli.parse(task_list, {opts, command}) do
+      {:ok, updated, desc} ->
+        Storage.write(storage, updated)
+        desc
 
+      {:ok, listed} ->
+        listed
+    end
+  end
 end
