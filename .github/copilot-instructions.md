@@ -73,11 +73,37 @@ The CLI adapter uses **compile-time DI** for testability:
 
 4. **Self-Documenting Code**: Code should be clear enough to be self-documenting. Do NOT add `@doc` or `@moduledoc` to most modules - the code itself should explain its purpose through good naming and structure. This is counter to standard Elixir conventions but preferred for this codebase. Only add documentation for truly complex algorithms or non-obvious behavior.
 
-5. **Error Handling**: Raises exceptions for invalid operations (e.g., `Enum.OutOfBoundsError` for invalid index)
+5. **Error Handling**: Domain operations return result tuples instead of raising exceptions
+   - Success: `{:ok, result}`
+   - Failure: `{:error, :reason_atom}`
+   - Example errors: `:duplicate_task`, `:task_not_found`, `:already_done`
+   - Use `with` expressions for chaining operations that can fail
+   - Adapters map domain errors to user-friendly messages
 
-6. **Future Extensibility**: Storage adapter is planned but not yet implemented - keep persistence layer separate when adding
+6. **Invariant Enforcement**: Domain modules (like `TaskList`) act as consistency boundaries
+   - Validate business rules before state changes
+   - Example: `validate_not_duplicate/2` prevents duplicate tasks
+   - Return error tuples for validation failures
 
 ## Common Patterns
+
+- **Result tuples for error handling**:
+  ```elixir
+  case TaskList.add_task_to_list(task_list, task) do
+    {:ok, updated} -> {:ok, updated, "Added task"}
+    {:error, :duplicate_task} -> {:error, "Task already exists"}
+  end
+  ```
+
+- **`with` expressions for chaining operations**:
+  ```elixir
+  with {:ok, task_id} <- get_task_id_at_position(task_list, index),
+       {:ok, done} <- TaskList.mark_task_as_done(task_list, task_id) do
+    {:ok, done, "Marked task as done"}
+  else
+    {:error, reason} -> {:error, format_error(reason)}
+  end
+  ```
 
 - **Pipe into `then/2`** for struct creation:
   ```elixir
@@ -91,9 +117,3 @@ The CLI adapter uses **compile-time DI** for testability:
   ```
 
 - **Alias at module level**, not inline usage
-
-## Current State & TODOs
-
-- CLI adapter has mixed responsibilities (formatting + command parsing) - consider extracting formatter
-- Storage adapter is planned but not implemented
-- README is placeholder template - needs actual project description
