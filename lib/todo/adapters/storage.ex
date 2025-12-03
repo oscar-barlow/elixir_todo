@@ -3,9 +3,10 @@ defmodule Todo.Adapters.Storage do
   alias Todo.Core.Task
   @behaviour Todo.Ports.Storage
 
+  @enforce_keys [:todo_folder, :todo_file]
   @type t :: %__MODULE__{todo_folder: Path.t(), todo_file: String.t()}
 
-  defstruct todo_folder: Path.expand("~"), todo_file: "todo.txt"
+  defstruct todo_folder: nil, todo_file: nil
 
   @impl true
   def read(%__MODULE__{} = storage) do

@@ -10,7 +10,7 @@ defmodule Todo.Main do
 
   defp parse(args) do
     {opts, word, _} = args |> OptionParser.parse(switches: [not_done: :boolean])
-    storage = %Storage{}
+    storage = %Storage{todo_folder: Path.expand("~"), todo_file: "todo.txt"}
     {:ok, task_list} = Storage.read(storage)
     command = Enum.join(word, " ")
 
