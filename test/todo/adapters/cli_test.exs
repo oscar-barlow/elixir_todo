@@ -19,7 +19,7 @@ defmodule Todo.Adapters.CliTest do
 
       expect(TaskListMock, :add_task_to_list, fn ^task_list,
                                                  %Task{description: "buy some milk"} ->
-        added_task_list
+        {:ok, added_task_list}
       end)
 
       expect(CliFormatterMock, :format, fn ^added_task_list -> "example formatted tasks" end)
@@ -43,7 +43,7 @@ defmodule Todo.Adapters.CliTest do
 
       expect(TaskListMock, :mark_task_as_done, fn ^task_list, task_id ->
         assert task_id == dinner.id
-        done_task_list
+        {:ok, done_task_list}
       end)
       expect(CliFormatterMock, :format, fn ^done_task_list -> "example formatted tasks" end)
 
@@ -103,7 +103,7 @@ defmodule Todo.Adapters.CliTest do
 
       expect(TaskListMock, :remove_task_from_list, fn ^task_list, task_id ->
         assert task_id == walk_dog.id
-        removed_task_list
+        {:ok, removed_task_list}
       end)
 
       expect(CliFormatterMock, :format, fn ^removed_task_list -> "example formatted tasks" end)

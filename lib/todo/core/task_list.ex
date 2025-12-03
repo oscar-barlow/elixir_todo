@@ -2,10 +2,10 @@ defmodule Todo.Core.TaskListBehaviour do
   alias Todo.Core.TaskList
   alias Todo.Core.Task
 
-  @callback add_task_to_list(TaskList.t(), Task.t()) :: TaskList.t()
-  @callback mark_task_as_done(TaskList.t(), String.t()) :: TaskList.t()
+  @callback add_task_to_list(TaskList.t(), Task.t()) :: {:ok, TaskList.t()} | {:error, :duplicate_task}
+  @callback mark_task_as_done(TaskList.t(), String.t()) :: {:ok, TaskList.t()} | {:error, :task_not_found | :already_done}
   @callback get_not_done_tasks(TaskList.t()) :: TaskList.t()
-  @callback remove_task_from_list(TaskList.t(), String.t()) :: TaskList.t()
+  @callback remove_task_from_list(TaskList.t(), String.t()) :: {:ok, TaskList.t()} | {:error, :task_not_found}
 end
 
 defmodule Todo.Core.TaskList do
@@ -20,15 +20,34 @@ defmodule Todo.Core.TaskList do
 
   @impl true
   def add_task_to_list(%TaskList{} = task_list, %Task{} = task) do
-    (task_list.tasks ++ [task])
-    |> then(fn tasks -> %TaskList{tasks: tasks} end)
+    case validate_not_duplicate(task_list, task) do
+      :ok ->
+        tasks = task_list.tasks ++ [task]
+        {:ok, %TaskList{tasks: tasks}}
+
+      error -> error
+    end
+  end
+
+  defp validate_not_duplicate(%TaskList{tasks: tasks}, %Task{id: id}) do
+    case Enum.any?(tasks, fn t -> t.id == id end) do
+      true -> {:error, :duplicate_task}
+      false -> :ok
+    end
   end
 
   @impl true
   def mark_task_as_done(%TaskList{} = task_list, task_id) when is_binary(task_id) do
     case find_task_by_id(task_list, task_id) do
-      nil -> raise Enum.OutOfBoundsError
-      task -> mark_task_complete_and_create_new_task_list(task_list, task)
+      nil ->
+        {:error, :task_not_found}
+
+      %Task{is_done: true} ->
+        {:error, :already_done}
+
+      task ->
+        updated_list = mark_task_complete_and_create_new_task_list(task_list, task)
+        {:ok, updated_list}
     end
   end
 
@@ -52,7 +71,13 @@ defmodule Todo.Core.TaskList do
 
   @impl true
   def remove_task_from_list(%TaskList{} = task_list, task_id) when is_binary(task_id) do
-    Enum.reject(task_list.tasks, fn task -> task.id == task_id end)
-    |> then(fn tasks -> %TaskList{tasks: tasks} end)
+    case find_task_by_id(task_list, task_id) do
+      nil ->
+        {:error, :task_not_found}
+
+      _task ->
+        tasks = Enum.reject(task_list.tasks, fn task -> task.id == task_id end)
+        {:ok, %TaskList{tasks: tasks}}
+    end
   end
 end
