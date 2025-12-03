@@ -43,7 +43,7 @@ defmodule TaskListTest do
         |> TaskList.add_task_to_list(walk_dog)
         |> TaskList.add_task_to_list(dinner)
 
-      completed_first_task = TaskList.mark_task_as_done(task_list, 1)
+      completed_first_task = TaskList.mark_task_as_done(task_list, shopping.id)
 
       done_task = hd(completed_first_task.tasks)
 
@@ -52,7 +52,7 @@ defmodule TaskListTest do
 
     test "prevents you marking non-existent tasks as done", %{task_list: task_list} do
       assert_raise Enum.OutOfBoundsError, fn ->
-        TaskList.mark_task_as_done(task_list, 0)
+        TaskList.mark_task_as_done(task_list, "nonexistent-id")
       end
     end
 
@@ -74,7 +74,7 @@ defmodule TaskListTest do
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 
-      remaining_tasks = TaskList.remove_task_from_list(task_list, 1)
+      remaining_tasks = TaskList.remove_task_from_list(task_list, shopping.id)
       assert remaining_tasks == %TaskList{tasks: [walk_dog, dinner]}
     end
 
@@ -85,7 +85,7 @@ defmodule TaskListTest do
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 
-      remaining_tasks = TaskList.remove_task_from_list(task_list, 2)
+      remaining_tasks = TaskList.remove_task_from_list(task_list, walk_dog.id)
       assert remaining_tasks == %TaskList{tasks: [shopping, dinner]}
     end
   end

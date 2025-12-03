@@ -3,9 +3,9 @@ defmodule Todo.Core.TaskListBehaviour do
   alias Todo.Core.Task
 
   @callback add_task_to_list(TaskList.t(), Task.t()) :: TaskList.t()
-  @callback mark_task_as_done(TaskList.t(), integer()) :: TaskList.t()
+  @callback mark_task_as_done(TaskList.t(), String.t()) :: TaskList.t()
   @callback get_not_done_tasks(TaskList.t()) :: TaskList.t()
-  @callback remove_task_from_list(TaskList.t(), integer()) :: TaskList.t()
+  @callback remove_task_from_list(TaskList.t(), String.t()) :: TaskList.t()
 end
 
 defmodule Todo.Core.TaskList do
@@ -25,16 +25,22 @@ defmodule Todo.Core.TaskList do
   end
 
   @impl true
-  def mark_task_as_done(%TaskList{} = task_list, index) when is_integer(index) do
-    case Enum.fetch(task_list.tasks, index - 1) do
-      :error -> raise Enum.OutOfBoundsError
-      {:ok, task} -> mark_task_complete_and_create_new_task_list(task_list, task, index)
+  def mark_task_as_done(%TaskList{} = task_list, task_id) when is_binary(task_id) do
+    case find_task_by_id(task_list, task_id) do
+      nil -> raise Enum.OutOfBoundsError
+      task -> mark_task_complete_and_create_new_task_list(task_list, task)
     end
   end
 
-  defp mark_task_complete_and_create_new_task_list(%TaskList{} = task_list, %Task{} = task, index) do
+  defp find_task_by_id(%TaskList{} = task_list, task_id) do
+    Enum.find(task_list.tasks, fn task -> task.id == task_id end)
+  end
+
+  defp mark_task_complete_and_create_new_task_list(%TaskList{} = task_list, %Task{} = task) do
     completed = %{task | is_done: true}
-    updated_tasks = List.replace_at(task_list.tasks, index - 1, completed)
+    updated_tasks = Enum.map(task_list.tasks, fn t -> 
+      if t.id == task.id, do: completed, else: t
+    end)
     %TaskList{tasks: updated_tasks}
   end
 
@@ -45,8 +51,8 @@ defmodule Todo.Core.TaskList do
   end
 
   @impl true
-  def remove_task_from_list(%TaskList{} = task_list, index) when is_integer(index) do
-    List.delete_at(task_list.tasks, index - 1)
+  def remove_task_from_list(%TaskList{} = task_list, task_id) when is_binary(task_id) do
+    Enum.reject(task_list.tasks, fn task -> task.id == task_id end)
     |> then(fn tasks -> %TaskList{tasks: tasks} end)
   end
 end
