@@ -29,3 +29,6 @@ elixir_todo-*.tar
 
 # escript binary in root directory
 /todo
+
+# VS code
+.vscode/
