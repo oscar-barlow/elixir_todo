@@ -18,10 +18,12 @@ defmodule TaskListTest do
 
     test "preserves task order when adding tasks to a list", %{task_list: task_list, task: task} do
       another_task = %Task{description: "Another test task"}
-      result = TaskList.add_task_to_list(task_list, task)
-       |> then(&(TaskList.add_task_to_list(&1, another_task)))
 
-       assert result == %TaskList{tasks: [task, another_task]}
+      result =
+        TaskList.add_task_to_list(task_list, task)
+        |> then(&TaskList.add_task_to_list(&1, another_task))
+
+      assert result == %TaskList{tasks: [task, another_task]}
     end
 
     # todo: should be deprecated by spec and dialyzer
@@ -43,7 +45,7 @@ defmodule TaskListTest do
 
       completed_first_task = TaskList.mark_task_as_done(task_list, 1)
 
-      done_task = hd completed_first_task.tasks
+      done_task = hd(completed_first_task.tasks)
 
       assert done_task.is_done
     end
@@ -87,5 +89,4 @@ defmodule TaskListTest do
       assert remaining_tasks == %TaskList{tasks: [shopping, dinner]}
     end
   end
-
 end

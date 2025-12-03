@@ -3,7 +3,11 @@ defmodule Todo.Adapters.Cli do
   alias Todo.Core.TaskList
 
   @task_list_module Application.compile_env(:todo, :task_list_module, Todo.Core.TaskList)
-  @cli_formatter_module Application.compile_env(:todo, :cli_formatter_module, Todo.Adapters.CliFormatter)
+  @cli_formatter_module Application.compile_env(
+                          :todo,
+                          :cli_formatter_module,
+                          Todo.Adapters.CliFormatter
+                        )
 
   @behaviour Todo.Ports.Cli
 
@@ -15,8 +19,8 @@ defmodule Todo.Adapters.Cli do
   end
 
   defp run(%TaskList{} = task_list, [], ["add" | description_list]) do
-    task = Enum.join(description_list, " ")
-      |> then(fn description -> %Task{description: description} end)
+    description = Enum.join(description_list, " ")
+    task = %Task{description: description}
     added = @task_list_module.add_task_to_list(task_list, task)
     {:ok, added, "Added task"}
   end
@@ -63,6 +67,7 @@ defmodule Todo.Adapters.Cli do
       todo list
       todo remove 3
     """
+
     {:ok, task_list, help}
   end
 
@@ -75,5 +80,4 @@ defmodule Todo.Adapters.Cli do
     formatted = @cli_formatter_module.format(task_list)
     {:ok, formatted}
   end
-
 end

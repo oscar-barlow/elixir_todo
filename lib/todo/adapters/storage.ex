@@ -3,9 +3,10 @@ defmodule Todo.Adapters.Storage do
   alias Todo.Core.Task
   @behaviour Todo.Ports.Storage
 
+  @enforce_keys [:todo_folder, :todo_file]
   @type t :: %__MODULE__{todo_folder: Path.t(), todo_file: String.t()}
 
-  defstruct todo_folder: Path.expand("~"), todo_file: "todo.txt"
+  defstruct todo_folder: nil, todo_file: nil
 
   @impl true
   def read(%__MODULE__{} = storage) do
@@ -16,11 +17,10 @@ defmodule Todo.Adapters.Storage do
       false -> File.touch(read_path, System.os_time(:second))
     end
 
-
     task_list =
       File.stream!(read_path, encoding: :utf8)
       |> Stream.map(&convert_line_to_task/1)
-      |> Enum.to_list
+      |> Enum.to_list()
       |> then(fn tasks -> %TaskList{tasks: tasks} end)
 
     {:ok, task_list}
@@ -28,8 +28,8 @@ defmodule Todo.Adapters.Storage do
 
   defp convert_line_to_task(line) do
     line
-    |> String.trim
-    |> String.split
+    |> String.trim()
+    |> String.split()
     |> tl
     |> parse_task
   end

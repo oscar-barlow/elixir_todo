@@ -3,9 +3,9 @@ defmodule Todo.Core.TaskListBehaviour do
   alias Todo.Core.Task
 
   @callback add_task_to_list(TaskList.t(), Task.t()) :: TaskList.t()
-	@callback mark_task_as_done(TaskList.t(), integer()) :: TaskList.t()
-	@callback get_not_done_tasks(TaskList.t()) :: TaskList.t()
-	@callback remove_task_from_list(TaskList.t(), integer()) :: TaskList.t()
+  @callback mark_task_as_done(TaskList.t(), integer()) :: TaskList.t()
+  @callback get_not_done_tasks(TaskList.t()) :: TaskList.t()
+  @callback remove_task_from_list(TaskList.t(), integer()) :: TaskList.t()
 end
 
 defmodule Todo.Core.TaskList do
@@ -16,12 +16,12 @@ defmodule Todo.Core.TaskList do
 
   defstruct tasks: []
 
-  @type t :: %__MODULE__ {tasks: list(Task.t())}
+  @type t :: %__MODULE__{tasks: list(Task.t())}
 
   @impl true
   def add_task_to_list(%TaskList{} = task_list, %Task{} = task) do
-    task_list.tasks ++ [task]
-    |> then(&(%TaskList{tasks: &1}))
+    (task_list.tasks ++ [task])
+    |> then(fn tasks -> %TaskList{tasks: tasks} end)
   end
 
   @impl true

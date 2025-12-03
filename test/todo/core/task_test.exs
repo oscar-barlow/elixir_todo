@@ -8,6 +8,12 @@ defmodule TaskTest do
       {:ok, task: task}
     end
 
+    test "requires a description" do
+      assert_raise ArgumentError, fn ->
+        struct!(Task, %{})
+      end
+    end
+
     test "has a name", %{task: task} do
       assert task.description == "Test task"
     end
