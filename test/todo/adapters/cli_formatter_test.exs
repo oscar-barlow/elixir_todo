@@ -6,9 +6,9 @@ defmodule Todo.Adapters.CliFormatterTest do
   use ExUnit.Case
 
   test "should format tasks" do
-    shopping = %Task{description: "do the shopping"}
-    walk_dog = %Task{description: "walk the dog", is_done: true}
-    dinner = %Task{description: "cook dinner"}
+    shopping = Task.new("do the shopping")
+    walk_dog = Task.new("walk the dog", true)
+    dinner = Task.new("cook dinner")
 
     task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 

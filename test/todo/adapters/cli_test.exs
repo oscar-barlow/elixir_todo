@@ -15,7 +15,7 @@ defmodule Todo.Adapters.CliTest do
   describe "when adding tasks" do
     test "should delegate adding tasks and format the result" do
       task_list = %TaskList{tasks: []}
-      added_task_list = %TaskList{tasks: [%Task{description: "buy some milk"}]}
+      added_task_list = %TaskList{tasks: [Task.new("buy some milk")]}
 
       expect(TaskListMock, :add_task_to_list, fn ^task_list,
                                                  %Task{description: "buy some milk"} ->
@@ -31,29 +31,40 @@ defmodule Todo.Adapters.CliTest do
 
   describe "when marking tasks as done" do
     test "should delegate marking a task as done and format the result" do
-      shopping = %Task{description: "do the shopping"}
-      walk_dog = %Task{description: "walk the dog", is_done: true}
-      dinner = %Task{description: "cook dinner"}
+      shopping = Task.new("do the shopping")
+      walk_dog = Task.new("walk the dog", true)
+      dinner = Task.new("cook dinner")
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 
       done_task_list = %TaskList{
-        tasks: [shopping, walk_dog, %Task{description: "cook dinner", is_done: true}]
+        tasks: [shopping, walk_dog, Task.new("cook dinner", true)]
       }
 
-      expect(TaskListMock, :mark_task_as_done, fn ^task_list, 3 -> done_task_list end)
+      expect(TaskListMock, :mark_task_as_done, fn ^task_list, task_id ->
+        assert task_id == dinner.id
+        done_task_list
+      end)
       expect(CliFormatterMock, :format, fn ^done_task_list -> "example formatted tasks" end)
 
       result = Cli.parse(task_list, {[], "done 3"})
       assert result == {:ok, "example formatted tasks", "Marked task 3 as done"}
     end
+
+    test "should return error when task index not found" do
+      shopping = Task.new("do the shopping")
+      task_list = %TaskList{tasks: [shopping]}
+
+      result = Cli.parse(task_list, {[], "done 5"})
+      assert result == {:error, "Task 5 not found"}
+    end
   end
 
   describe "when listing tasks" do
     test "should delegate formatting to the formatter for listing all tasks" do
-      shopping = %Task{description: "do the shopping"}
-      walk_dog = %Task{description: "walk the dog", is_done: true}
-      dinner = %Task{description: "cook dinner"}
+      shopping = Task.new("do the shopping")
+      walk_dog = Task.new("walk the dog", true)
+      dinner = Task.new("cook dinner")
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 
@@ -64,9 +75,9 @@ defmodule Todo.Adapters.CliTest do
     end
 
     test "should delegate filtering and formatting for listing not-done tasks" do
-      shopping = %Task{description: "do the shopping"}
-      walk_dog = %Task{description: "walk the dog", is_done: true}
-      dinner = %Task{description: "cook dinner"}
+      shopping = Task.new("do the shopping")
+      walk_dog = Task.new("walk the dog", true)
+      dinner = Task.new("cook dinner")
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
       not_done_task_list = %TaskList{tasks: [shopping, dinner]}
@@ -84,13 +95,14 @@ defmodule Todo.Adapters.CliTest do
 
   describe "when removing tasks" do
     test "should delegate removing tasks and format the result" do
-      shopping = %Task{description: "do the shopping"}
-      walk_dog = %Task{description: "walk the dog", is_done: true}
+      shopping = Task.new("do the shopping")
+      walk_dog = Task.new("walk the dog", true)
 
       task_list = %TaskList{tasks: [shopping, walk_dog]}
       removed_task_list = %TaskList{tasks: [shopping]}
 
-      expect(TaskListMock, :remove_task_from_list, fn ^task_list, 2 ->
+      expect(TaskListMock, :remove_task_from_list, fn ^task_list, task_id ->
+        assert task_id == walk_dog.id
         removed_task_list
       end)
 
@@ -98,6 +110,14 @@ defmodule Todo.Adapters.CliTest do
 
       result = Cli.parse(task_list, {[], "remove 2"})
       assert result == {:ok, "example formatted tasks", "Removed task 2"}
+    end
+
+    test "should return error when task index not found" do
+      shopping = Task.new("do the shopping")
+      task_list = %TaskList{tasks: [shopping]}
+
+      result = Cli.parse(task_list, {[], "remove 10"})
+      assert result == {:error, "Task 10 not found"}
     end
   end
 end

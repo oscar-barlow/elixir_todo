@@ -18,16 +18,30 @@ defmodule Todo.Adapters.Cli do
     |> format_result()
   end
 
+  defp get_task_id_at_position(%TaskList{} = task_list, index) when is_integer(index) do
+    case Enum.fetch(task_list.tasks, index - 1) do
+      {:ok, task} -> {:ok, task.id}
+      :error -> {:error, :task_not_found}
+    end
+  end
+
   defp run(%TaskList{} = task_list, [], ["add" | description_list]) do
     description = Enum.join(description_list, " ")
-    task = %Task{description: description}
+    task = Task.new(description)
     added = @task_list_module.add_task_to_list(task_list, task)
     {:ok, added, "Added task"}
   end
 
   defp run(%TaskList{} = task_list, [], ["done", index]) do
-    done = @task_list_module.mark_task_as_done(task_list, String.to_integer(index))
-    {:ok, done, "Marked task #{index} as done"}
+    index_int = String.to_integer(index)
+
+    case get_task_id_at_position(task_list, index_int) do
+      {:ok, task_id} ->
+        done = @task_list_module.mark_task_as_done(task_list, task_id)
+        {:ok, done, "Marked task #{index} as done"}
+      {:error, :task_not_found} ->
+        {:error, "Task #{index} not found"}
+    end
   end
 
   defp run(%TaskList{} = task_list, [], ["list"]) do
@@ -40,8 +54,15 @@ defmodule Todo.Adapters.Cli do
   end
 
   defp run(%TaskList{} = task_list, [], ["remove", index]) do
-    removed = @task_list_module.remove_task_from_list(task_list, String.to_integer(index))
-    {:ok, removed, "Removed task #{index}"}
+    index_int = String.to_integer(index)
+
+    case get_task_id_at_position(task_list, index_int) do
+      {:ok, task_id} ->
+        removed = @task_list_module.remove_task_from_list(task_list, task_id)
+        {:ok, removed, "Removed task #{index}"}
+      {:error, :task_not_found} ->
+        {:error, "Task #{index} not found"}
+    end
   end
 
   defp run(%TaskList{} = task_list, [], ["help"]) do
@@ -79,5 +100,9 @@ defmodule Todo.Adapters.Cli do
   defp format_result({:ok, %TaskList{} = task_list}) do
     formatted = @cli_formatter_module.format(task_list)
     {:ok, formatted}
+  end
+
+  defp format_result({:error, message}) do
+    {:error, message}
   end
 end

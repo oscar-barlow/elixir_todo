@@ -5,7 +5,7 @@ defmodule TaskListTest do
 
   describe "todolist" do
     setup do
-      task = %Task{description: "Test task"}
+      task = Task.new("Test task")
       task_list = %TaskList{tasks: []}
       {:ok, task: task, task_list: task_list}
     end
@@ -17,7 +17,7 @@ defmodule TaskListTest do
     end
 
     test "preserves task order when adding tasks to a list", %{task_list: task_list, task: task} do
-      another_task = %Task{description: "Another test task"}
+      another_task = Task.new("Another test task")
 
       result =
         TaskList.add_task_to_list(task_list, task)
@@ -33,9 +33,9 @@ defmodule TaskListTest do
     end
 
     test "updates done statuses of tasks in list" do
-      shopping = %Task{description: "do the shopping"}
-      walk_dog = %Task{description: "walk the dog"}
-      dinner = %Task{description: "cook dinner"}
+      shopping = Task.new("do the shopping")
+      walk_dog = Task.new("walk the dog")
+      dinner = Task.new("cook dinner")
 
       task_list =
         %TaskList{}
@@ -43,7 +43,7 @@ defmodule TaskListTest do
         |> TaskList.add_task_to_list(walk_dog)
         |> TaskList.add_task_to_list(dinner)
 
-      completed_first_task = TaskList.mark_task_as_done(task_list, 1)
+      completed_first_task = TaskList.mark_task_as_done(task_list, shopping.id)
 
       done_task = hd(completed_first_task.tasks)
 
@@ -52,14 +52,14 @@ defmodule TaskListTest do
 
     test "prevents you marking non-existent tasks as done", %{task_list: task_list} do
       assert_raise Enum.OutOfBoundsError, fn ->
-        TaskList.mark_task_as_done(task_list, 0)
+        TaskList.mark_task_as_done(task_list, "nonexistent-id")
       end
     end
 
     test "returns you not-done tasks in list" do
-      shopping = %Task{description: "do the shopping"}
-      walk_dog = %Task{description: "walk the dog", is_done: true}
-      dinner = %Task{description: "cook dinner"}
+      shopping = Task.new("do the shopping")
+      walk_dog = Task.new("walk the dog", true)
+      dinner = Task.new("cook dinner")
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 
@@ -68,24 +68,24 @@ defmodule TaskListTest do
     end
 
     test "removes a task from the list" do
-      shopping = %Task{description: "do the shopping"}
-      walk_dog = %Task{description: "walk the dog", is_done: true}
-      dinner = %Task{description: "cook dinner"}
+      shopping = Task.new("do the shopping")
+      walk_dog = Task.new("walk the dog", true)
+      dinner = Task.new("cook dinner")
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 
-      remaining_tasks = TaskList.remove_task_from_list(task_list, 1)
+      remaining_tasks = TaskList.remove_task_from_list(task_list, shopping.id)
       assert remaining_tasks == %TaskList{tasks: [walk_dog, dinner]}
     end
 
     test "removes the correct task from middle of the list" do
-      shopping = %Task{description: "do the shopping"}
-      walk_dog = %Task{description: "walk the dog"}
-      dinner = %Task{description: "cook dinner"}
+      shopping = Task.new("do the shopping")
+      walk_dog = Task.new("walk the dog")
+      dinner = Task.new("cook dinner")
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 
-      remaining_tasks = TaskList.remove_task_from_list(task_list, 2)
+      remaining_tasks = TaskList.remove_task_from_list(task_list, walk_dog.id)
       assert remaining_tasks == %TaskList{tasks: [shopping, dinner]}
     end
   end
