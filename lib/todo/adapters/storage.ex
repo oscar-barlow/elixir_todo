@@ -28,7 +28,7 @@ defmodule Todo.Adapters.Storage do
     {:ok, task_list}
   end
 
-  defp convert_line_to_task(line) do
+  defp convert_line_to_task(line) when is_binary(line) do
     line
     |> String.trim
     |> String.split
@@ -36,7 +36,7 @@ defmodule Todo.Adapters.Storage do
     |> parse_task
   end
 
-  defp parse_task(parts) do
+  defp parse_task(parts) when is_list(parts) do
     case List.pop_at(parts, -1) do
       {"✓", description_parts} ->
         description = Enum.join(description_parts, " ")
