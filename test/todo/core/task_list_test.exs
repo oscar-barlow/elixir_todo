@@ -11,17 +11,21 @@ defmodule TaskListTest do
     end
 
     test "adds tasks to a list", %{task_list: task_list, task: task} do
-      added = TaskList.add_task_to_list(task_list, task)
+      {:ok, added} = TaskList.add_task_to_list(task_list, task)
       assert Enum.any?(added.tasks, fn t -> t == task end)
       assert Enum.count(added.tasks) == 1
+    end
+
+    test "prevents adding duplicate tasks", %{task_list: task_list, task: task} do
+      {:ok, added} = TaskList.add_task_to_list(task_list, task)
+      assert TaskList.add_task_to_list(added, task) == {:error, :duplicate_task}
     end
 
     test "preserves task order when adding tasks to a list", %{task_list: task_list, task: task} do
       another_task = Task.new("Another test task")
 
-      result =
-        TaskList.add_task_to_list(task_list, task)
-        |> then(&TaskList.add_task_to_list(&1, another_task))
+      {:ok, with_first} = TaskList.add_task_to_list(task_list, task)
+      {:ok, result} = TaskList.add_task_to_list(with_first, another_task)
 
       assert result == %TaskList{tasks: [task, another_task]}
     end
@@ -37,13 +41,11 @@ defmodule TaskListTest do
       walk_dog = Task.new("walk the dog")
       dinner = Task.new("cook dinner")
 
-      task_list =
-        %TaskList{}
-        |> TaskList.add_task_to_list(shopping)
-        |> TaskList.add_task_to_list(walk_dog)
-        |> TaskList.add_task_to_list(dinner)
+      {:ok, with_shopping} = TaskList.add_task_to_list(%TaskList{}, shopping)
+      {:ok, with_walk_dog} = TaskList.add_task_to_list(with_shopping, walk_dog)
+      {:ok, task_list} = TaskList.add_task_to_list(with_walk_dog, dinner)
 
-      completed_first_task = TaskList.mark_task_as_done(task_list, shopping.id)
+      {:ok, completed_first_task} = TaskList.mark_task_as_done(task_list, shopping.id)
 
       done_task = hd(completed_first_task.tasks)
 
@@ -51,9 +53,15 @@ defmodule TaskListTest do
     end
 
     test "prevents you marking non-existent tasks as done", %{task_list: task_list} do
-      assert_raise Enum.OutOfBoundsError, fn ->
-        TaskList.mark_task_as_done(task_list, "nonexistent-id")
-      end
+      assert TaskList.mark_task_as_done(task_list, "nonexistent-id") == {:error, :task_not_found}
+    end
+
+    test "prevents you marking already done tasks as done" do
+      shopping = Task.new("do the shopping")
+      {:ok, task_list} = TaskList.add_task_to_list(%TaskList{}, shopping)
+      {:ok, marked_done} = TaskList.mark_task_as_done(task_list, shopping.id)
+
+      assert TaskList.mark_task_as_done(marked_done, shopping.id) == {:error, :already_done}
     end
 
     test "returns you not-done tasks in list" do
@@ -74,7 +82,7 @@ defmodule TaskListTest do
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 
-      remaining_tasks = TaskList.remove_task_from_list(task_list, shopping.id)
+      {:ok, remaining_tasks} = TaskList.remove_task_from_list(task_list, shopping.id)
       assert remaining_tasks == %TaskList{tasks: [walk_dog, dinner]}
     end
 
@@ -85,8 +93,12 @@ defmodule TaskListTest do
 
       task_list = %TaskList{tasks: [shopping, walk_dog, dinner]}
 
-      remaining_tasks = TaskList.remove_task_from_list(task_list, walk_dog.id)
+      {:ok, remaining_tasks} = TaskList.remove_task_from_list(task_list, walk_dog.id)
       assert remaining_tasks == %TaskList{tasks: [shopping, dinner]}
+    end
+
+    test "prevents you removing non-existent tasks", %{task_list: task_list} do
+      assert TaskList.remove_task_from_list(task_list, "nonexistent-id") == {:error, :task_not_found}
     end
   end
 end

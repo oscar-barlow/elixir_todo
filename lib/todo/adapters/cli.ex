@@ -28,19 +28,22 @@ defmodule Todo.Adapters.Cli do
   defp run(%TaskList{} = task_list, [], ["add" | description_list]) do
     description = Enum.join(description_list, " ")
     task = Task.new(description)
-    added = @task_list_module.add_task_to_list(task_list, task)
-    {:ok, added, "Added task"}
+
+    case @task_list_module.add_task_to_list(task_list, task) do
+      {:ok, added} -> {:ok, added, "Added task"}
+      {:error, :duplicate_task} -> {:error, "Task already exists"}
+    end
   end
 
   defp run(%TaskList{} = task_list, [], ["done", index]) do
     index_int = String.to_integer(index)
 
-    case get_task_id_at_position(task_list, index_int) do
-      {:ok, task_id} ->
-        done = @task_list_module.mark_task_as_done(task_list, task_id)
-        {:ok, done, "Marked task #{index} as done"}
-      {:error, :task_not_found} ->
-        {:error, "Task #{index} not found"}
+    with {:ok, task_id} <- get_task_id_at_position(task_list, index_int),
+         {:ok, done} <- @task_list_module.mark_task_as_done(task_list, task_id) do
+      {:ok, done, "Marked task #{index} as done"}
+    else
+      {:error, :already_done} -> {:error, "Task #{index} is already done"}
+      {:error, :task_not_found} -> {:error, "Task #{index} not found"}
     end
   end
 
@@ -56,12 +59,11 @@ defmodule Todo.Adapters.Cli do
   defp run(%TaskList{} = task_list, [], ["remove", index]) do
     index_int = String.to_integer(index)
 
-    case get_task_id_at_position(task_list, index_int) do
-      {:ok, task_id} ->
-        removed = @task_list_module.remove_task_from_list(task_list, task_id)
-        {:ok, removed, "Removed task #{index}"}
-      {:error, :task_not_found} ->
-        {:error, "Task #{index} not found"}
+    with {:ok, task_id} <- get_task_id_at_position(task_list, index_int),
+         {:ok, removed} <- @task_list_module.remove_task_from_list(task_list, task_id) do
+      {:ok, removed, "Removed task #{index}"}
+    else
+      {:error, :task_not_found} -> {:error, "Task #{index} not found"}
     end
   end
 
